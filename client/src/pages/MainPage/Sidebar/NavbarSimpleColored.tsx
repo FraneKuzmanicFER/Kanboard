@@ -1,16 +1,9 @@
-import {
-  IconPresentationAnalytics,
-  IconChalkboard,
-  IconBrush,
-  IconUsers,
-} from "@tabler/icons-react";
+import { IconPresentationAnalytics, IconUsers } from "@tabler/icons-react";
 import classes from "./NavbarSimpleColored.module.css";
 
 const data = [
   { link: "", label: "Projects", icon: IconPresentationAnalytics },
   { link: "", label: "Members", icon: IconUsers },
-  { link: "", label: "Theme", icon: IconBrush },
-  { link: "", label: "Your boards", icon: IconChalkboard },
 ];
 
 type NavbarProps = {

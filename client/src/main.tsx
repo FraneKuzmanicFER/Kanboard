@@ -15,7 +15,7 @@ const router = createBrowserRouter([
     element: <HomePage />,
   },
   {
-    path: "/user",
+    path: "/main",
     element: (
       <ProtectedRoute>
         <MainPage />
@@ -31,7 +31,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       clientId="JpXBwgir2wYdcNxKq4xHLePx3xn254f5"
       cacheLocation="localstorage"
       authorizationParams={{
-        redirect_uri: window.location.origin + "/user",
+        redirect_uri: window.location.origin + "/main",
       }}
     >
       <MantineProvider>
