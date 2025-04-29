@@ -65,6 +65,8 @@ const BoardSectionList: React.FC<BoardSectionListProps> = ({
 
     // Listen for real-time task updates
     socket.on("task_created", (newTask: Task) => {
+      console.log("Socket: Task created", newTask);
+
       // Only update if it's for our current project
       if (newTask.project_id === selectedProject.id) {
         setTasks((prevTasks) => [...prevTasks, newTask]);
@@ -76,6 +78,8 @@ const BoardSectionList: React.FC<BoardSectionListProps> = ({
     });
 
     socket.on("task_updated", (updatedTask: Task) => {
+      console.log("Socket: Task updated", updatedTask);
+
       // Only update if it's for our current project
       if (updatedTask.project_id === selectedProject.id) {
         // Update tasks array
@@ -110,6 +114,8 @@ const BoardSectionList: React.FC<BoardSectionListProps> = ({
     socket.on(
       "task_deleted",
       (deletedInfo: { id: number; project_id: number }) => {
+        console.log("Socket: Task deleted", deletedInfo);
+
         // Only update if it's for our current project
         if (deletedInfo.project_id === selectedProject.id) {
           // Remove from tasks array
@@ -388,8 +394,11 @@ const BoardSectionList: React.FC<BoardSectionListProps> = ({
     newTask: Omit<Task, "id">
   ) => {
     try {
-      await axiosInstance.post("/tasks", newTask);
+      const response = await axiosInstance.post("/tasks", newTask);
+      const createdTask: Task = response.data;
+
       // No need to update state here as the socket will broadcast the change
+      console.log("Task created:", createdTask);
     } catch (error) {
       console.error("Failed to create task:", error);
     }
@@ -403,7 +412,8 @@ const BoardSectionList: React.FC<BoardSectionListProps> = ({
       );
       const updatedTaskFromBackend: Task = response.data;
 
-      // No need to update state here as the socket will broadcast the change;
+      // No need to update state here as the socket will broadcast the change
+      console.log("Task updated:", updatedTaskFromBackend);
 
       return updatedTaskFromBackend;
     } catch (error) {
@@ -415,6 +425,8 @@ const BoardSectionList: React.FC<BoardSectionListProps> = ({
   const handleDeleteTask = async (taskId: number) => {
     try {
       await axiosInstance.delete(`/tasks/${taskId}`);
+      console.log("Task deleted:", taskId);
+
       // No need to update state here as the socket will broadcast the change
     } catch (error) {
       console.error("Failed to delete task:", error);
