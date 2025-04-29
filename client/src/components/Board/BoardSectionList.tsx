@@ -22,6 +22,7 @@ import TaskItem from "./TaskItem";
 import { useEffect, useState } from "react";
 import "./styles.css";
 import axiosInstance from "../../services/axios";
+import { io, Socket } from "socket.io-client";
 
 interface Project {
   id: number;
@@ -37,8 +38,8 @@ const BoardSectionList: React.FC<BoardSectionListProps> = ({
 }) => {
   const [boardSections, setBoardSections] = useState<BoardSectionsType>({});
   const [tasks, setTasks] = useState<Task[]>([]);
-
   const [activeTaskId, setActiveTaskId] = useState<null | number>(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   const fetchTasks = async (projectId: number): Promise<Task[]> => {
     const response = await axiosInstance.get(`/tasks/${projectId}`);
@@ -46,6 +47,94 @@ const BoardSectionList: React.FC<BoardSectionListProps> = ({
   };
 
   useEffect(() => {
+    // Create socket connection (ensure this matches your backend URL)
+    const newSocket = io("http://localhost:3000");
+    setSocket(newSocket);
+
+    // Clean up on unmount
+    return () => {
+      newSocket.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!socket || !selectedProject?.id) return;
+
+    // Join the room for this project
+    socket.emit("join_project", selectedProject.id);
+
+    // Listen for real-time task updates
+    socket.on("task_created", (newTask: Task) => {
+      // Only update if it's for our current project
+      if (newTask.project_id === selectedProject.id) {
+        setTasks((prevTasks) => [...prevTasks, newTask]);
+        setBoardSections((prevSections) => ({
+          ...prevSections,
+          [newTask.status]: [...prevSections[newTask.status], newTask],
+        }));
+      }
+    });
+
+    socket.on("task_updated", (updatedTask: Task) => {
+      // Only update if it's for our current project
+      if (updatedTask.project_id === selectedProject.id) {
+        // Update tasks array
+        setTasks((prevTasks) =>
+          prevTasks.map((task) =>
+            task.id === updatedTask.id ? updatedTask : task
+          )
+        );
+
+        // Update board sections
+        setBoardSections((prevSections) => {
+          const newSections = { ...prevSections };
+
+          // Remove the task from all sections
+          Object.keys(newSections).forEach((section) => {
+            newSections[section] = newSections[section].filter(
+              (task) => task.id !== updatedTask.id
+            );
+          });
+
+          // Add the task to its updated section
+          newSections[updatedTask.status] = [
+            ...newSections[updatedTask.status],
+            updatedTask,
+          ];
+
+          return newSections;
+        });
+      }
+    });
+
+    socket.on(
+      "task_deleted",
+      (deletedInfo: { id: number; project_id: number }) => {
+        // Only update if it's for our current project
+        if (deletedInfo.project_id === selectedProject.id) {
+          // Remove from tasks array
+          setTasks((prevTasks) =>
+            prevTasks.filter((task) => task.id !== deletedInfo.id)
+          );
+
+          // Remove from board sections
+          setBoardSections((prevSections) => {
+            const newSections = { ...prevSections };
+
+            // Remove the task from all sections
+            Object.keys(newSections).forEach((section) => {
+              newSections[section] = newSections[section].filter(
+                (task) => task.id !== deletedInfo.id
+              );
+            });
+
+            return newSections;
+          });
+        }
+      }
+    );
+
+    // Fetch tasks when project changes
     const loadTasks = async () => {
       try {
         const fetchedTasks = await fetchTasks(selectedProject.id);
@@ -57,7 +146,15 @@ const BoardSectionList: React.FC<BoardSectionListProps> = ({
     };
 
     loadTasks();
-  }, [selectedProject.id]);
+
+    // Leave the room when component unmounts or project changes
+    return () => {
+      socket.emit("leave_project", selectedProject.id);
+      socket.off("task_created");
+      socket.off("task_updated");
+      socket.off("task_deleted");
+    };
+  }, [selectedProject.id, socket]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -287,19 +384,12 @@ const BoardSectionList: React.FC<BoardSectionListProps> = ({
   };
 
   const handleAddTask = async (
-    sectionId: string,
+    _sectionId: string,
     newTask: Omit<Task, "id">
   ) => {
     try {
-      const response = await axiosInstance.post("/tasks", newTask);
-      const createdTask: Task = response.data;
-
-      setBoardSections((prevSections) => ({
-        ...prevSections,
-        [sectionId]: [...prevSections[sectionId], createdTask],
-      }));
-
-      setTasks((prevTasks) => [...prevTasks, createdTask]);
+      await axiosInstance.post("/tasks", newTask);
+      // No need to update state here as the socket will broadcast the change
     } catch (error) {
       console.error("Failed to create task:", error);
     }
@@ -313,47 +403,19 @@ const BoardSectionList: React.FC<BoardSectionListProps> = ({
       );
       const updatedTaskFromBackend: Task = response.data;
 
-      setBoardSections((prevSections) => {
-        const newSections = { ...prevSections };
-        for (const section in newSections) {
-          const idx = newSections[section].findIndex(
-            (t) => t.id === updatedTaskFromBackend.id
-          );
-          if (idx !== -1) {
-            newSections[section][idx] = updatedTaskFromBackend;
-            break;
-          }
-        }
-        return newSections;
-      });
+      // No need to update state here as the socket will broadcast the change;
 
-      setTasks((prevTasks) =>
-        prevTasks.map((t) =>
-          t.id === updatedTaskFromBackend.id ? updatedTaskFromBackend : t
-        )
-      );
+      return updatedTaskFromBackend;
     } catch (error) {
       console.error("Failed to update task:", error);
+      throw error;
     }
   };
 
   const handleDeleteTask = async (taskId: number) => {
     try {
-      // Delete task on backend
       await axiosInstance.delete(`/tasks/${taskId}`);
-
-      // Update local state (remove from board sections and task list)
-      setBoardSections((prevSections) => {
-        const newSections = { ...prevSections };
-        for (const section in newSections) {
-          newSections[section] = newSections[section].filter(
-            (task) => task.id !== taskId
-          );
-        }
-        return newSections;
-      });
-
-      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+      // No need to update state here as the socket will broadcast the change
     } catch (error) {
       console.error("Failed to delete task:", error);
     }

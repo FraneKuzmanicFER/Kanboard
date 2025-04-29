@@ -32,6 +32,8 @@ const Projects: React.FC<ProjectsProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
 
+  console.log(user?.sub);
+
   useEffect(() => {
     if (user)
       axiosInstance
