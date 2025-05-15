@@ -62,12 +62,12 @@ const BoardSection = ({
       status: id as Status,
       user_id: user?.sub ? user.sub : "0",
       project_id: project_id,
-      assigned_to: newAssignedTo,
+      assigned_to: newAssignedTo ? newAssignedTo : null,
     });
     setAddOpened(false);
     setNewTitle("");
     setNewDescription("");
-    setNewAssignedTo("");
+    setNewAssignedTo(null);
   };
 
   return (
