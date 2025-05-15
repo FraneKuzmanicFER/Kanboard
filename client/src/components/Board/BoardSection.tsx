@@ -6,7 +6,15 @@ import {
 import { Status, Task } from "./types";
 import TaskItem from "./TaskItem";
 import SortableTaskItem from "./SortableTaskItem";
-import { Button, Card, Group, Modal, Textarea, TextInput } from "@mantine/core";
+import {
+  Button,
+  Card,
+  Group,
+  Modal,
+  Select,
+  Textarea,
+  TextInput,
+} from "@mantine/core";
 import { useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 
@@ -44,6 +52,7 @@ const BoardSection = ({
   const [addOpened, setAddOpened] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
+  const [newAssignedTo, setNewAssignedTo] = useState("");
   const { user } = useAuth0();
 
   const handleAdd = () => {
@@ -53,10 +62,12 @@ const BoardSection = ({
       status: id as Status,
       user_id: user?.sub ? user.sub : "0",
       project_id: project_id,
+      assigned_to: newAssignedTo,
     });
     setAddOpened(false);
     setNewTitle("");
     setNewDescription("");
+    setNewAssignedTo("");
   };
 
   return (
@@ -110,6 +121,21 @@ const BoardSection = ({
           value={newDescription}
           onChange={(e) => setNewDescription(e.currentTarget.value)}
           mb="md"
+        />
+        <Select
+          label="Assign to"
+          placeholder="Select a collaborator"
+          data={
+            collaborators?.map((user) => ({
+              value: user.id,
+              label: user.name,
+            })) || []
+          }
+          value={newAssignedTo}
+          onChange={(value) => setNewAssignedTo(value || "")}
+          clearable
+          searchable
+          mb="xl"
         />
         <Group justify="flex-end">
           <Button color="rgb(24, 33, 109)" onClick={handleAdd}>
