@@ -72,7 +72,7 @@ const BoardSectionList: React.FC<BoardSectionListProps> = ({
 
   useEffect(() => {
     // Create socket connection (ensure this matches your backend URL)
-    const newSocket = io("http://localhost:3000");
+    const newSocket = io("https://kanboard-server.onrender.com");
     setSocket(newSocket);
 
     fetchCollaborators();
