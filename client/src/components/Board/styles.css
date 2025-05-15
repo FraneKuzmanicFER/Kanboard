@@ -1,0 +1,59 @@
+.board-section-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0rem 1rem;
+    background-color: rgb(24, 33, 109, 0.7);
+    color: white;
+
+}
+
+.board-section-container {
+    display: flex;
+    gap: 2rem;
+    padding: 1rem;
+      max-height: 80vh; /* Important: limit vertical height */
+  overflow: hidden; /* Prevent children from overflowing outside */
+}
+
+.board-column-container {
+    display: flex;
+    flex-direction: column;
+    width: 20rem;
+    border-radius: 0.8rem; 
+    background-color: #DCDFE4;
+    
+
+}
+
+.board-column-title {
+    margin: 0;
+    padding: 1rem;
+    border-top-right-radius: 0.8rem; 
+    border-top-left-radius: 0.8rem; 
+    background-color: rgb(24, 33, 109);
+    color: white;
+}
+
+.task-list {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 1rem;
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+.task-item {
+    border-radius: 0.8rem !important;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    padding: 0 !important;
+    align-items: center !important;
+}
+
+.mantine-Modal-header{
+    color: rgb(24, 33, 109);
+    font-weight: bold;
+}

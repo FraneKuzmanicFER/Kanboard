@@ -1,0 +1,9 @@
+.main-layout {
+    display: flex;
+    width: 100%;
+    overflow: hidden; /* optional, to handle scrolls better */
+}
+
+.main-content {
+    width: calc(100vw - 250px);
+  }
