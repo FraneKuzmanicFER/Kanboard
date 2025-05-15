@@ -52,7 +52,7 @@ const BoardSection = ({
   const [addOpened, setAddOpened] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
-  const [newAssignedTo, setNewAssignedTo] = useState("");
+  const [newAssignedTo, setNewAssignedTo] = useState<string | null>("");
   const { user } = useAuth0();
 
   const handleAdd = () => {
@@ -132,7 +132,7 @@ const BoardSection = ({
             })) || []
           }
           value={newAssignedTo}
-          onChange={(value) => setNewAssignedTo(value || "")}
+          onChange={(value) => setNewAssignedTo(value || null)}
           clearable
           searchable
           mb="xl"
