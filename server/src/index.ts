@@ -24,7 +24,7 @@ const io = new Server(server, {
 });
 
 app.use(cors({
-  origin: process.env.CLIENT_URL,
+  origin: process.env.CLIENT_URL || "https://kanboard-b03p.onrender.com",
 }));
 
 app.use(express.json());
@@ -567,7 +567,7 @@ app.get('/users/:userId/friends', async (req, res) => {
 
 // IMPORTANT: Use server.listen instead of app.listen
 const hostname = '0.0.0.0';
-app.listen(PORT, hostname, () => {
-console.log(`Server locally running at http://${hostname}:${PORT}/ and from
+server.listen(PORT, hostname, () => {
+console.log(`Server running at http://${hostname}:${PORT}/ and from
 outside on ${externalUrl}`);
 });
