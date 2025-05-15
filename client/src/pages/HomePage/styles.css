@@ -62,3 +62,46 @@
   width: 100%;
   height: auto;
 }
+
+@media (max-width: 768px) {
+  .home-page-header{
+    padding: 20px 10px;
+  }
+  .home-page-header h1{
+    font-size: 2rem;
+  }
+  .nav-list{
+    font-size: 1.2rem;
+  }
+  .home-page-main{
+    padding: 2rem 10px 0rem 10px;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .home-page-hero h2{
+    font-size: 2.5rem;
+  }
+  .home-page-hero p{
+    font-size: 1.2rem;
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-height: 820px) {
+  .home-page-hero h2{
+  font-size: 3rem;
+  }
+  .home-page-hero p{
+  font-size: 1.5rem;
+  }
+}
+
+@media (max-height: 700px) {
+  .home-page-hero h2{
+  font-size: 2.5rem;
+  }
+  .home-page-hero p{
+  font-size: 1rem;
+  }
+}

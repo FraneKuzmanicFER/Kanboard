@@ -3,7 +3,7 @@ import classes from "./NavbarSimpleColored.module.css";
 
 const data = [
   { link: "", label: "Projects", icon: IconPresentationAnalytics },
-  { link: "", label: "Members", icon: IconUsers },
+  { link: "", label: "Friends", icon: IconUsers },
 ];
 
 type NavbarProps = {

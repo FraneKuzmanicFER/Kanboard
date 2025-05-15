@@ -16,6 +16,7 @@ import { IconDotsVertical, IconTrash } from "@tabler/icons-react";
 interface Project {
   id: number;
   name: string;
+  isCreator: boolean;
 }
 
 interface ProjectsProps {
@@ -72,6 +73,20 @@ const Projects: React.FC<ProjectsProps> = ({
       alert("Project deleted successfully!");
     } catch (error) {
       console.error("There was an error deleting the project!", error);
+    }
+  };
+
+  const handleLeave = async (projectId: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await axiosInstance.delete(`/projects/${projectId}/leave/${user?.sub}`);
+      setProjects((prevProjects) =>
+        prevProjects.filter((project) => project.id !== projectId)
+      );
+      alert("Project left successfully!");
+    } catch (error) {
+      console.error("There was an error leaving the project!", error);
     }
   };
 
@@ -145,10 +160,17 @@ const Projects: React.FC<ProjectsProps> = ({
               </Menu.Target>
 
               <Menu.Dropdown>
-                <Menu.Item onClick={(e) => handleDelete(project.id, e)}>
-                  <IconTrash style={{ marginRight: "0.5rem" }} />
-                  Delete Project
-                </Menu.Item>
+                {project.isCreator ? (
+                  <Menu.Item onClick={(e) => handleDelete(project.id, e)}>
+                    <IconTrash style={{ marginRight: "0.5rem" }} />
+                    Delete Project
+                  </Menu.Item>
+                ) : (
+                  <Menu.Item onClick={(e) => handleLeave(project.id, e)}>
+                    <IconTrash style={{ marginRight: "0.5rem" }} />
+                    Leave Project
+                  </Menu.Item>
+                )}
               </Menu.Dropdown>
             </Menu>
           </div>

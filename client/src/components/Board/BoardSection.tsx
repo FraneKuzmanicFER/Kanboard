@@ -10,6 +10,12 @@ import { Button, Card, Group, Modal, Textarea, TextInput } from "@mantine/core";
 import { useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
 type BoardSectionProps = {
   id: string;
   title: string;
@@ -18,6 +24,7 @@ type BoardSectionProps = {
   onUpdateTask: (task: Task) => void;
   onDeleteTask: (taskId: number) => void;
   onAddTask: (sectionId: string, newTask: Omit<Task, "id">) => void;
+  collaborators?: User[];
 };
 
 const BoardSection = ({
@@ -28,6 +35,7 @@ const BoardSection = ({
   onUpdateTask,
   onDeleteTask,
   onAddTask,
+  collaborators,
 }: BoardSectionProps) => {
   const { setNodeRef } = useDroppable({
     id,
@@ -66,6 +74,7 @@ const BoardSection = ({
                 onUpdate={onUpdateTask}
                 onDelete={onDeleteTask}
                 task={task}
+                collaborators={collaborators}
               />
             </SortableTaskItem>
           ))}

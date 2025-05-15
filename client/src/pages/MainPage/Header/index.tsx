@@ -35,7 +35,7 @@ export function HeaderSimple() {
             <UnstyledButton className={userClasses.user}>
               <Group>
                 <Avatar
-                  src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-9.png"
+                  src="https://www.flaticon.com/free-icon/user_149071?term=avatar&page=1&position=1&origin=tag&related_id=149071"
                   radius="xl"
                 />
 

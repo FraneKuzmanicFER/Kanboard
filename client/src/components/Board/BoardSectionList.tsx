@@ -1,4 +1,4 @@
-import { Button } from "@mantine/core";
+import { Avatar, Button, Modal } from "@mantine/core";
 import {
   useSensors,
   useSensor,
@@ -19,6 +19,7 @@ import { getTaskById } from "./utils/tasks";
 import { initializeBoard } from "./utils/board";
 import BoardSection from "./BoardSection";
 import TaskItem from "./TaskItem";
+import InviteFriendsModal from "./InviteFriendsModal";
 import { useEffect, useState } from "react";
 import "./styles.css";
 import axiosInstance from "../../services/axios";
@@ -29,27 +30,52 @@ interface Project {
   name: string;
 }
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
 interface BoardSectionListProps {
   selectedProject: Project;
+  currentUser: { id: string }; // Added current user prop
 }
 
 const BoardSectionList: React.FC<BoardSectionListProps> = ({
   selectedProject,
+  currentUser,
 }) => {
   const [boardSections, setBoardSections] = useState<BoardSectionsType>({});
   const [tasks, setTasks] = useState<Task[]>([]);
   const [activeTaskId, setActiveTaskId] = useState<null | number>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
+  // Add state for invite friends modal
+  const [inviteModalOpen, setInviteModalOpen] = useState(false);
+  const [collaboratorsModalOpen, setCollaboratorsModalOpen] = useState(false);
+  const [collaborators, setCollaborators] = useState<User[]>([]);
 
   const fetchTasks = async (projectId: number): Promise<Task[]> => {
     const response = await axiosInstance.get(`/tasks/${projectId}`);
     return response.data;
   };
 
+  const fetchCollaborators = async () => {
+    try {
+      const response = await axiosInstance.get(
+        `/projects/${selectedProject.id}/collaborators`
+      );
+      setCollaborators(response.data);
+    } catch (error) {
+      console.error("Failed to fetch collaborators:", error);
+    }
+  };
+
   useEffect(() => {
     // Create socket connection (ensure this matches your backend URL)
     const newSocket = io("http://localhost:3000");
     setSocket(newSocket);
+
+    fetchCollaborators();
 
     // Clean up on unmount
     return () => {
@@ -439,13 +465,33 @@ const BoardSectionList: React.FC<BoardSectionListProps> = ({
 
   const task = activeTaskId ? getTaskById(tasks, activeTaskId) : null;
 
+  // Handler for opening the invite modal
+  const handleOpenInviteModal = () => {
+    setInviteModalOpen(true);
+  };
+
   return (
-    <>
+    <div>
       <div className="board-section-header">
         <h2>{selectedProject.name}</h2>
-        <Button variant="filled" color="rgb(24, 33, 109)" size="md">
-          Invite member
-        </Button>
+        <div style={{ display: "flex", gap: "20px" }}>
+          <Button
+            variant="filled"
+            color="rgb(24, 33, 109)"
+            size="md"
+            onClick={() => setCollaboratorsModalOpen(true)}
+          >
+            Show Collaborators
+          </Button>
+          <Button
+            variant="filled"
+            color="rgb(24, 33, 109)"
+            size="md"
+            onClick={handleOpenInviteModal}
+          >
+            Invite friends
+          </Button>
+        </div>
       </div>
       <div className="board-section-container">
         <DndContext
@@ -465,6 +511,7 @@ const BoardSectionList: React.FC<BoardSectionListProps> = ({
               onUpdateTask={handleUpdateTask}
               onDeleteTask={handleDeleteTask}
               onAddTask={handleAddTask}
+              collaborators={collaborators}
             />
           ))}
           <DragOverlay dropAnimation={dropAnimation}>
@@ -478,7 +525,40 @@ const BoardSectionList: React.FC<BoardSectionListProps> = ({
           </DragOverlay>
         </DndContext>
       </div>
-    </>
+
+      <Modal
+        opened={collaboratorsModalOpen}
+        onClose={() => setCollaboratorsModalOpen(false)}
+        title="Project Collaborators"
+      >
+        {collaborators.length === 0 ? (
+          <span>No collaborators found.</span>
+        ) : (
+          collaborators.map((collaborator) => (
+            <span
+              key={collaborator.id}
+              style={{ display: "flex", alignItems: "center" }}
+            >
+              <Avatar
+                src="https://www.flaticon.com/free-icon/user_149071?term=avatar&page=1&position=1&origin=tag&related_id=149071"
+                radius="xl"
+                style={{ marginRight: "10px" }}
+              />
+              {collaborator.name}
+              {collaborator.id === currentUser.id && " (you)"}
+            </span>
+          ))
+        )}
+      </Modal>
+
+      {/* Render the InviteFriendsModal */}
+      <InviteFriendsModal
+        opened={inviteModalOpen}
+        onClose={() => setInviteModalOpen(false)}
+        projectId={selectedProject.id}
+        userId={currentUser.id}
+      />
+    </div>
   );
 };
 

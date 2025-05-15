@@ -1,0 +1,28 @@
+.friends-section-header.m_4081bf90.mantine-Group-root{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: rgb(24, 33, 109, 0.7);
+    color: white;
+}
+
+.no-friends-text{
+    color: rgb(24, 33, 109, 0.7);
+    font-weight: bold;
+    text-align: center;
+}
+
+
+th{
+    text-align: center;
+    background-color: rgb(24, 33, 109);
+    color: white;
+
+}
+
+td {
+    text-align: center;
+    margin-top: 1rem;
+
+}

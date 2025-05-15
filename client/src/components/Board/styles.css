@@ -12,6 +12,8 @@
     display: flex;
     gap: 2rem;
     padding: 1rem;
+      max-height: 80vh; /* Important: limit vertical height */
+  overflow: hidden; /* Prevent children from overflowing outside */
 }
 
 .board-column-container {
@@ -39,6 +41,7 @@
     flex: 1;
     gap: 1rem;
     padding: 1rem;
+    overflow-y: auto;
 }
 
 .task-item {
@@ -48,4 +51,9 @@
     justify-content: space-between !important;
     padding: 0 !important;
     align-items: center !important;
+}
+
+.mantine-Modal-header{
+    color: rgb(24, 33, 109);
+    font-weight: bold;
 }
