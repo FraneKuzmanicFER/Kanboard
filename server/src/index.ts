@@ -8,7 +8,8 @@ dotenv.config();
 
 const cors = require('cors');
 const app = express();
-const PORT = 3000;
+const externalUrl = process.env.RENDER_EXTERNAL_URL;
+const PORT = externalUrl && process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
 // Create HTTP server instance
 const server = http.createServer(app);
@@ -565,4 +566,8 @@ app.get('/users/:userId/friends', async (req, res) => {
 
 
 // IMPORTANT: Use server.listen instead of app.listen
-server.listen(PORT, () => console.log(`Server running on port ${PORT} with Socket.io`));
+const hostname = '0.0.0.0';
+app.listen(PORT, hostname, () => {
+console.log(`Server locally running at http://${hostname}:${PORT}/ and from
+outside on ${externalUrl}`);
+});
