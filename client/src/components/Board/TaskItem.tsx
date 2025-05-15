@@ -40,7 +40,9 @@ const TaskItem = ({
   const [viewModalOpened, setViewModalOpened] = useState(false);
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description);
-  const [assignedTo, setAssignedTo] = useState(task.assigned_to || "");
+  const [assignedTo, setAssignedTo] = useState<string | null>(
+    task.assigned_to || ""
+  );
 
   const handleSave = () => {
     onUpdate({ ...task, title, description, assigned_to: assignedTo });
@@ -129,7 +131,7 @@ const TaskItem = ({
             })) || []
           }
           value={assignedTo}
-          onChange={(value) => setAssignedTo(value || "")}
+          onChange={(value) => setAssignedTo(value || null)}
           clearable
           searchable
           mb="xl"
